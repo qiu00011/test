@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HYERI | Official Portfolio</title>
+    <link rel="icon" href="icon/icon.png" type="image/png">
+    <!-- Fonts & CSS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Cursor -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+
+    <!-- Header -->
+    <header class="fixed-header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">HYERI.</a>
+            <nav class="desktop-nav">
+                <a href="#bio">Biography</a>
+                <a href="#works">Filmography</a>
+                <a href="gallery.html">Gallery</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main>
+        <!-- 1. Hero Section -->
+        <section class="hero">
+            <div class="hero-bg">
+                <!-- 视频背景：如果有封面图建议加 poster="封面图链接" 防止黑屏 -->
+                <video autoplay muted loop playsinline poster="https://hyeriphotos.hyeri.us.kg/rivalry/30102a9b079701d7b923fff4d2d32209.jpg">
+                    <source src="https://image.hyeri.us.kg/spot.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="container hero-content">
+                <h1 class="hero-title">
+                    <span class="line">Beyond</span>
+                    <span class="line">Expectations</span>
+                </h1>
+                <div class="hero-sub">
+                    <p>Actress & Artist based in Seoul.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Biography -->
+        <section id="bio" class="section-padding">
+            <div class="container">
+                <div class="bio-grid">
+                    <div class="vertical-text">About The Artist</div>
+                    <div class="bio-content">
+                        <h2 class="section-heading">Defining an Era.</h2>
+                        <p class="lead">From the vibrant stages of K-Pop to the nuanced emotions of cinema, Lee Hyeri has established herself as a versatile force.</p>
+                        <p style="color:var(--text-muted)">Known for her iconic role in <em>Reply 1988</em>, she continues to challenge boundaries.</p>
+                        <div class="signature">Lee Hyeri</div>
+                    </div>
+                    <div class="bio-image">
+                        <img src="https://image.hyeri.us.kg/hyeri.png" alt="Hyeri Portrait">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Works List (Filmography) -->
+        <section id="works" class="section-padding">
+            <div class="container">
+                <div style="margin-bottom:60px; border-bottom:1px solid var(--border); padding-bottom:20px; display:flex; justify-content:space-between;">
+                    <span style="color:var(--accent); letter-spacing:2px;">SELECTED WORKS</span>
+                    <span style="color:var(--text-muted)">2015 — 2025</span>
+                </div>
+
+                <div class="work-list">
+                    <!-- 2025: Friendly Rivalry (已有) -->
+                    <a href="work-rivalry.html" class="work-item" data-img="https://hyeriphotos.hyeri.us.kg/rivalry/e9aa9de1344543e0b6cc1acf2c0cda05.jpg">
+                        <span class="work-meta">2025</span>
+                        <h3 class="work-title">Friendly Rivalry</h3>
+                        <span class="work-cat">Mystery Thriller</span>
+                    </a>
+                    
+                    <!-- 2024: Victory (已有) -->
+                    <a href="work-victory.html" class="work-item" data-img="https://hyeriphotos.hyeri.us.kg/victory/2f4a5920afbb8348f6daf9d04e53e10f.jpg">
+                        <span class="work-meta">2024</span>
+                        <h3 class="work-title">Victory</h3>
+                        <span class="work-cat">Feature Film</span>
+                    </a>
+
+                    <!-- 2022: May I Help You (待创建文件: work-mayihelpyou.html) -->
+                    <a href="work-mayihelpyou.html" class="work-item" data-img="把这里换成_MayIHelpYou_的剧照直链.jpg">
+                        <span class="work-meta">2022</span>
+                        <h3 class="work-title">May I Help You</h3>
+                        <span class="work-cat">Fantasy Drama</span>
+                    </a>
+
+                    <!-- 2021: Moonshine (待创建文件: work-moonshine.html) -->
+                    <a href="work-moonshine.html" class="work-item" data-img="把这里换成_Moonshine_的剧照直链.jpg">
+                        <span class="work-meta">2021</span>
+                        <h3 class="work-title">Moonshine</h3>
+                        <span class="work-cat">Period Drama</span>
+                    </a>
+
+                    <!-- 2021: My Roommate Is a Gumiho (待创建文件: work-gumiho.html) -->
+                    <a href="work-gumiho.html" class="work-item" data-img="把这里换成_Gumiho_的剧照直链.jpg">
+                        <span class="work-meta">2021</span>
+                        <h3 class="work-title">My Roommate Is a Gumiho</h3>
+                        <span class="work-cat">Rom-Com</span>
+                    </a>
+
+                    <!-- 2019: My Punch-Drunk Boxer (待创建文件: work-boxer.html) -->
+                    <a href="work-boxer.html" class="work-item" data-img="把这里换成_Boxer_的剧照直链.jpg">
+                        <span class="work-meta">2019</span>
+                        <h3 class="work-title">My Punch-Drunk Boxer</h3>
+                        <span class="work-cat">Feature Film</span>
+                    </a>
+
+                    <!-- 2017: Two Cops (待创建文件: work-twocops.html) -->
+                    <a href="work-twocops.html" class="work-item" data-img="把这里换成_TwoCops_的剧照直链.jpg">
+                        <span class="work-meta">2017</span>
+                        <h3 class="work-title">Two Cops</h3>
+                        <span class="work-cat">Comedy Crime</span>
+                    </a>
+
+                    <!-- 2016: The Entertainer (待创建文件: work-entertainer.html) -->
+                    <a href="work-entertainer.html" class="work-item" data-img="把这里换成_Entertainer_的剧照直链.jpg">
+                        <span class="work-meta">2016</span>
+                        <h3 class="work-title">The Entertainer</h3>
+                        <span class="work-cat">Drama</span>
+                    </a>
+
+                    <!-- 2015: Reply 1988 (已有) -->
+                    <a href="work-reply1988.html" class="work-item" data-img="https://hyeriphotos.hyeri.us.kg/reply1988/5036d2e4eddb028cfbc7ee03662843fc.jpg">
+                        <span class="work-meta">2015</span>
+                        <h3 class="work-title">Reply 1988</h3>
+                        <span class="work-cat">Iconic Series</span>
+                    </a>
+                </div>
+            
+            <!-- 悬浮显示的图片容器 (必须保留) -->
+            <div class="hover-reveal">
+                <img src="" class="hidden-img" alt="Preview">
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <h2 class="footer-cta">Let's Create Together.</h2>
+                <div class="footer-links">
+                    <a href="https://instagram.com/hyeri_0609">Instagram</a>
+                    <a href="https://youtube.com/@IamLeeHyeri">YouTube</a>
+                    <a href="https://x.com/hyeriherihey">X</a>
+                    <a href="mailto:contact@hyeri.top">Contact</a>
+                </div>
+                <div class="copyright">&copy; 2025 HYEROOMY. Fan Tribute.</div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.29/dist/lenis.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
