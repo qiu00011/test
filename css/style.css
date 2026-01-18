@@ -477,3 +477,46 @@ footer {
         height: 45px;
     }
 }
+/* --- Signature Link (White Heart Effect) --- */
+.signature-link {
+    text-decoration: none;
+    color: inherit;
+    font-family: inherit;
+    cursor: pointer;
+    position: relative; /* 必须保留，作为爱心的定位基准 */
+    transition: color 0.3s ease;
+    display: inline-block;
+}
+
+/* 1. 爱心的样式 (默认是隐藏的) */
+.signature-link::after {
+    content: '♥';            /* 实心爱心符号 */
+    color: #fff;             /* 纯白色 */
+    font-family: sans-serif; /* 强制使用标准字体，防止被手写字体影响形状 */
+    font-size: 1.2rem;       /* 爱心大小 */
+    
+    position: absolute;
+    top: 0;
+    right: -25px;            /* 放在文字右侧 */
+    
+    opacity: 0;              /* 初始透明 */
+    transform: translateY(10px) rotate(20deg); /* 初始位置：稍微靠下，且歪一点 */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 贝塞尔曲线：带一点Q弹的效果 */
+    pointer-events: none;    /* 防止爱心挡住鼠标点击 */
+}
+
+/* 2. 鼠标悬停时的变化 */
+.signature-link:hover {
+    color: #fff;             /* 文字本身变白 */
+    text-shadow: 0 0 10px rgba(255,255,255,0.3); /* 文字淡淡发光 */
+}
+
+.signature-link:hover::after {
+    opacity: 1;              /* 爱心显示 */
+    transform: translateY(-15px) rotate(0deg); /* 爱心向上浮起，并摆正 */
+}
+
+/* 3. 点击时的微动反馈 */
+.signature-link:active {
+    transform: scale(0.95);
+}
