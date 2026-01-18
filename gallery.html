@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Archive | For Hyeri</title>
+    <link rel="icon" href="icon/icon.png" type="image/png">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400&family=Playfair+Display:ital,wght@0,400;0,600&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 光标 -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <!-- Header -->
+    <header class="fixed-header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">HYERI.</a>
+            <a href="index.html" style="text-transform:uppercase; font-size:0.8rem; letter-spacing:2px;">Back Home</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="gallery-hero">
+            <div class="container">
+                <h1>Visual Archives</h1>
+                <p>Curated Moments of Lee Hyeri</p>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <section class="container">
+            
+            <!-- Slider -->
+            <div class="slider-wrapper" id="sliderWrapper" style="display:none;">
+                <div class="slider-track" id="sliderTrack"></div>
+                <div class="slider-controls">
+                    <button class="slider-btn" id="prevBtn">←</button>
+                    <button class="slider-btn" id="nextBtn">→</button>
+                </div>
+            </div>
+
+            <!-- Masonry Grid -->
+            <div class="masonry-grid" id="masonryGrid">
+                <!-- Javascript will render images here -->
+            </div>
+
+            <!-- Load More Trigger (The Sentinel) -->
+            <!-- 关键修复：确保这个 div 不会跑位 -->
+            <div id="loadMoreTrigger">
+                <span id="triggerText">Loading Archive...</span>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p class="copyright">&copy; 2025 Made with love for Lee Hyeri by a Hyeroomy. This is an unofficial fan site dedicated to Lee Hyeri.</p>
+    </footer>
+
+    <!-- ★ Back To Top Button (所有页面通用) -->
+<button id="backToTop" class="back-to-top" aria-label="Back to Top">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 4L12 20M12 4L6 10M12 4L18 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+</button>
+
+    <!-- Libraries -->
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.29/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- Gallery Specific Logic -->
+    <script>
+    // --- 全局配置 ---
+    const CONFIG = {
+        // 你的 Worker 地址 (请确保是用 api2 还是 api，取决于哪个能访问)
+        apiUrl: 'https://api1.hyeri.us.kg', 
+        
+        // R2 中的文件夹名 (注意区分大小写，不要带前后的斜杠)
+        sliderPrefix: 'hyerigallery', 
+        masonryPrefix: 'leehyeri',
+        
+        sliderDuration: 3000
+    };
+
+    // --- 状态变量 (Masonry) ---
+    let masonryCursor = null;   // 瀑布流下一页标记
+    let isMasonryLoading = false;
+    let masonryHasMore = true;
+    let observer;
+
+    // --- 状态变量 (Slider) ---
+    let sliderImagesData = [];
+    let currentSlide = 1;
+    let slideInterval;
+    const track = document.getElementById('sliderTrack');
+    let isTransitioning = false;
+    let resizeTimer; // 修复 resize 报错
+
+    // --- 初始化入口 ---
+    function initGallery() {
+        // 并行执行：同时加载幻灯片和瀑布流
+        loadSliderImages();
+        initMasonryScroll();
+    }
+
+    // ==========================================
+    // 1. 幻灯片逻辑 (一次性获取该文件夹所有图)
+    // ==========================================
+    async function loadSliderImages() {
+        try {
+            const url = new URL(CONFIG.apiUrl);
+            url.searchParams.set('prefix', CONFIG.sliderPrefix + '/');
+            // 幻灯片通常不需要分页，或者取前50张够了
+            
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.success && data.images.length > 0) {
+                sliderImagesData = data.images;
+                initSlider(); // 数据这就绪，启动轮播
+            } else {
+                console.warn('Slider folder is empty or not found.');
+                document.getElementById('sliderWrapper').style.display = 'none';
+            }
+        } catch (err) {
+            console.error('Failed to load slider images:', err);
+            document.getElementById('sliderWrapper').style.display = 'none';
+        }
+    }
+
+    function initSlider() {
+        const wrapper = document.getElementById('sliderWrapper');
+        if(wrapper) wrapper.style.display = 'block';
+        
+        const first = sliderImagesData[0];
+        const last = sliderImagesData[sliderImagesData.length - 1];
+        
+        // 构建DOM
+        addSlideDOM(last);
+        sliderImagesData.forEach(url => addSlideDOM(url));
+        addSlideDOM(first);
+        
+        // 初始化位置
+        // 注意：这里需要等 DOM 渲染完获取宽度，或者先用百分比
+        track.style.transform = `translateX(-100%)`;
+
+        document.getElementById('nextBtn').onclick = () => { stopAuto(); nextSlide(); startAuto(); };
+        document.getElementById('prevBtn').onclick = () => { stopAuto(); prevSlide(); startAuto(); };
+        
+        startAuto();
+    }
+
+    function addSlideDOM(url) {
+        const div = document.createElement('div');
+        div.className = 'slider-slide';
+        div.innerHTML = `<img src="${url}" alt="Hyeri Moment">`;
+        track.appendChild(div);
+    }
+
+    function nextSlide() {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        currentSlide++;
+        updateTrack();
+        
+        track.addEventListener('transitionend', () => {
+            isTransitioning = false;
+            if (currentSlide === sliderImagesData.length + 1) {
+                track.style.transition = 'none';
+                currentSlide = 1;
+                // 使用百分比重置，避免宽度计算误差
+                track.style.transform = `translateX(-100%)`;
+            }
+        }, { once: true });
+    }
+
+    function prevSlide() {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        currentSlide--;
+        updateTrack();
+
+        track.addEventListener('transitionend', () => {
+            isTransitioning = false;
+            if (currentSlide === 0) {
+                track.style.transition = 'none';
+                currentSlide = sliderImagesData.length;
+                track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            }
+        }, { once: true });
+    }
+
+    function updateTrack() {
+        track.style.transition = 'transform 0.8s cubic-bezier(0.2, 1, 0.3, 1)';
+        // 推荐使用百分比进行移动，兼容性更好
+        track.style.transform = `translateX(-${currentSlide * 100}%)`;
+    }
+
+    function startAuto() { stopAuto(); slideInterval = setInterval(nextSlide, CONFIG.sliderDuration); }
+    function stopAuto() { clearInterval(slideInterval); }
+
+    // 窗口大小改变时，只需要保证 currentSlide 不变即可，百分比布局不需要重算 px
+    window.addEventListener('resize', () => {
+        // 如果你坚持用 px 计算，这里才需要逻辑，否则百分比布局下是自动适应的
+    });
+
+
+    // ==========================================
+    // 2. 瀑布流逻辑 (分页无限加载)
+    // ==========================================
+    
+    function initMasonryScroll() {
+        // 初始加载第一页
+        loadMasonryBatch();
+        
+        // 设置滚动监听
+        const trigger = document.getElementById('loadMoreTrigger');
+        if (trigger) {
+            observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting && !isMasonryLoading && masonryHasMore) {
+                    loadMasonryBatch();
+                }
+            }, { rootMargin: '200px', threshold: 0.1 });
+            observer.observe(trigger);
+        }
+    }
+
+    async function loadMasonryBatch() {
+        // 防止重复加载或到底
+        if (isMasonryLoading || !masonryHasMore) return;
+        
+        isMasonryLoading = true;
+        updateTriggerStatus("Loading...");
+
+        try {
+            // 构造 URL
+            const url = new URL(CONFIG.apiUrl);
+            url.searchParams.set('prefix', CONFIG.masonryPrefix + '/');
+            if (masonryCursor) {
+                url.searchParams.set('cursor', masonryCursor);
+            }
+
+            console.log(`Fetching Masonry: ${url.toString()}`);
+
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.success) {
+                const images = data.images || [];
+
+                if (images.length > 0) {
+                    renderMasonry(images);
+                } else if (!masonryCursor) {
+                    // 第一页就是空的
+                    updateTriggerStatus("No images found in folder.");
+                }
+
+                // 更新游标
+                masonryCursor = data.next_cursor;
+                masonryHasMore = !!masonryCursor;
+
+                if (!masonryHasMore) {
+                    updateTriggerStatus("— End of Archive —");
+                    if (observer) observer.disconnect();
+                } else {
+                    // 如果还有更多，检查是否填满屏幕
+                    setTimeout(() => {
+                        isMasonryLoading = false;
+                        checkIfNeedsMore(); 
+                    }, 500);
+                }
+            } else {
+                console.error("API Error:", data.error);
+                updateTriggerStatus("Error loading.");
+            }
+
+        } catch (err) {
+            console.error("Network Error:", err);
+            updateTriggerStatus("Network Error.");
+        } finally {
+            // 如果出错，也要释放锁
+            if (!masonryHasMore) isMasonryLoading = false; 
+        }
+    }
+
+    function renderMasonry(images) {
+        const grid = document.getElementById('masonryGrid');
+        const fragment = document.createDocumentFragment();
+
+        images.forEach(url => {
+            const div = document.createElement('div');
+            div.className = 'masonry-item';
+            
+            const img = document.createElement('img');
+            img.src = url;
+            img.loading = 'lazy';
+            
+            img.onload = () => img.classList.add('loaded');
+            
+            div.appendChild(img);
+            fragment.appendChild(div);
+        });
+
+        grid.appendChild(fragment);
+    }
+
+    // 自动补全逻辑：如果加载完一批后，Trigger 还在视口内，说明屏幕没填满，继续加载下一页
+    function checkIfNeedsMore() {
+        if (!masonryHasMore) return;
+        
+        const trigger = document.getElementById('loadMoreTrigger');
+        if (!trigger) return;
+
+        const rect = trigger.getBoundingClientRect();
+        // 如果 trigger 的顶部在视口内（或接近底部），则继续加载
+        if (rect.top <= window.innerHeight + 100) {
+            console.log("Auto-filling screen...");
+            loadMasonryBatch();
+        } else {
+            // 填满了，恢复文字
+            updateTriggerStatus("Scroll for more");
+        }
+    }
+
+    function updateTriggerStatus(text) {
+        const el = document.getElementById('triggerText');
+        if(el) el.innerText = text;
+    }
+
+    // 启动
+    initGallery();
+
+</script>
+</body>
+
+</html>
+
+

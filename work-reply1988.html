@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reply 1988 | Hyeri Works</title>
+    <link rel="icon" href="icon/icon.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <header class="fixed-header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">HYERI.</a>
+            <a href="index.html#works" style="text-transform:uppercase; font-size:0.8rem; letter-spacing:2px;">Back to Works</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Header Section -->
+        <section class="gallery-hero">
+            <div class="container">
+                <p>Iconic Series • 2015</p>
+                <!-- 修改：这里的标题 -->
+                <h1>Reply 1988</h1>
+            </div>
+        </section>
+
+        <!-- Images Section -->
+        <section>
+            <div class="container">
+                <div id="loading" style="text-align:center; color:#666; margin-bottom:50px;">Loading Visuals...</div>
+                
+                <!-- Masonry Grid -->
+                <div class="masonry-grid" id="masonryGrid"></div>
+                
+                <div id="loadMore" style="text-align:center; padding:50px; cursor:pointer; display:none; color:var(--accent); letter-spacing:2px;">LOAD MORE</div>
+            </div>
+        </section>
+
+        <!-- Navigation to Next (Optional) -->
+        <div style="text-align:center; padding-bottom:100px;">
+            <a href="work-rivalry.html" style="font-family:var(--font-display); font-size:2rem; border-bottom:1px solid var(--accent);">Next Project &rarr;</a>
+        </div>
+
+        <footer>
+            <div class="container">
+                <div class="copyright">&copy; 2025 Made with love for Lee Hyeri by a Hyeroomy.  This is an unofficial fan site dedicated to Lee Hyeri.</div>
+            </div>
+        </footer>
+    </main>
+    <!-- ★ Back To Top Button (所有页面通用) -->
+<button id="backToTop" class="back-to-top" aria-label="Back to Top">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 4L12 20M12 4L6 10M12 4L18 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+</button>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.29/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="js/app.js"></script> <!-- Include main animations -->
+
+    <script>
+    // ================= 配置区域 =================
+    // 1. 更新为你测试成功的那个地址
+    const API_URL = 'https://api1.hyeri.us.kg/?prefix=reply1988'; 
+    
+    // 2. 文件夹名称 (对应你测试链接里的 prefix=reply1988)
+    const WORK_FOLDER = 'reply1988'; 
+    // ===========================================
+
+    // DOM 元素获取
+    const masonryGrid = document.getElementById('masonryGrid');
+    const loadMoreBtn = document.getElementById('loadMore');
+    const loading = document.getElementById('loading');
+
+    // 状态变量
+    let nextCursor = null;   
+    let isFetching = false;  
+    let hasMore = true;      
+    let isFirstLoad = true;  
+
+    /**
+     * 核心函数：从 Worker 拉取图片
+     */
+    async function fetchImages() {
+        if (isFetching || !hasMore) return;
+
+        isFetching = true;
+
+        // 首次加载显示 Loading
+        if (isFirstLoad) {
+            loading.style.display = 'block';
+            loading.textContent = 'Loading Visuals...';
+        } else {
+            loadMoreBtn.textContent = 'Loading...';
+            loadMoreBtn.style.display = 'block';
+        }
+
+        try {
+            // === 构造 URL ===
+            const url = new URL(API_URL);
+            
+            // 关键：添加 prefix 参数
+            // 代码会自动加上 '/' 确保精确匹配文件夹
+            url.searchParams.set('prefix', WORK_FOLDER + '/');
+
+            // 如果有下一页标记，带上 cursor
+            if (nextCursor) {
+                url.searchParams.set('cursor', nextCursor);
+            }
+
+            // 在控制台打印请求地址，方便调试
+            console.log(`正在请求 API: ${url.toString()}`); 
+
+            // === 发起请求 ===
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                const images = data.images || [];
+
+                // === 渲染图片 ===
+                if (images.length > 0) {
+                    renderImages(images);
+                    
+                    // 只要有一张图加载成功，就隐藏 loading
+                    if (isFirstLoad) {
+                        loading.style.display = 'none';
+                        isFirstLoad = false;
+                    }
+                } else if (isFirstLoad) {
+                    // 如果数组为空，且是第一次加载
+                    loading.textContent = `No images found in folder: "${WORK_FOLDER}"`;
+                    loading.style.color = 'red';
+                }
+
+                // === 更新分页状态 ===
+                nextCursor = data.next_cursor;
+                hasMore = !!nextCursor; 
+
+                // === 更新按钮 ===
+                if (hasMore) {
+                    loadMoreBtn.textContent = 'LOAD MORE';
+                    loadMoreBtn.style.display = 'none'; // 滚动加载模式平时隐藏
+                    loadMoreBtn.style.pointerEvents = 'auto';
+                } else {
+                    loadMoreBtn.textContent = 'END OF COLLECTION';
+                    loadMoreBtn.style.display = 'block';
+                    loadMoreBtn.style.pointerEvents = 'none';
+                }
+
+            } else {
+                console.error('API Error:', data.error);
+                loading.textContent = 'Server Error: ' + data.error;
+            }
+
+        } catch (error) {
+            console.error('Fetch Failed:', error);
+            if (isFirstLoad) loading.textContent = 'Network Error. Check Console.';
+        } finally {
+            isFetching = false;
+        }
+    }
+
+    /**
+     * 渲染图片到页面
+     */
+    function renderImages(images) {
+        images.forEach(url => {
+            const div = document.createElement('div');
+            div.className = 'masonry-item';
+            
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = 'Gallery Image';
+            img.loading = 'lazy'; 
+
+            img.onload = () => {
+                img.classList.add('loaded');
+            };
+
+            div.appendChild(img);
+            masonryGrid.appendChild(div);
+        });
+    }
+
+    // === 初始化 ===
+    fetchImages();
+
+    // === 滚动监听 ===
+    window.addEventListener('scroll', () => {
+        if (isFetching || !hasMore) return;
+        const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+        // 距离底部 300px 时加载
+        if ((scrollTop + clientHeight) >= scrollHeight - 300) {
+            fetchImages();
+        }
+    });
+
+    // === 按钮点击备份 ===
+    loadMoreBtn.addEventListener('click', () => {
+        fetchImages();
+    });
+
+</script>
+</body>
+</html>
