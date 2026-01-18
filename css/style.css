@@ -72,6 +72,64 @@ h1, h2, h3, h4, .logo { font-family: var(--font-display); font-weight: 400; }
         text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
     }
 }
+/* --- Left Social Sidebar (修正版) --- */
+.social-sidebar {
+    position: fixed;
+    left: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    z-index: 90; 
+    
+    /* ★★★ 关键修复：防止透明层挡住页面滚动 ★★★ */
+    pointer-events: none; 
+    /* 限制宽度，防止它无意中撑满屏幕 */
+    width: auto; 
+    
+    mix-blend-mode: difference;
+}
+
+/* 图标链接容器 */
+.social-icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+    color: var(--text-muted);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 0.7;
+    
+    /* ★★★ 关键修复：让图标恢复可点击 ★★★ */
+    pointer-events: auto; 
+    cursor: pointer;
+}
+
+.social-icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.social-icon:hover {
+    color: var(--accent);
+    transform: scale(1.2);
+    opacity: 1;
+}
+
+/* 装饰线 */
+.social-line {
+    width: 1px;
+    height: 60px;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 1024px) {
+    .social-sidebar {
+        display: none;
+    }
+}
 
 /* --- 3. 首页 Hero 区域 (修复视频背景) --- */
 .hero { 
@@ -354,4 +412,68 @@ footer {
     }
     .slider-btn { width: 40px; height: 40px; font-size: 1rem; }
 
+}
+/* --- Back To Top Button --- */
+.back-to-top {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    
+    /* 玻璃磨砂质感 */
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 90; /* 略低于 Header */
+    cursor: pointer;
+    
+    /* 初始隐藏状态 */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px); /* 稍微向下沉一点 */
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* 按钮内的 SVG 箭头 */
+.back-to-top svg {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s ease;
+}
+
+/* 悬停效果：变金、变黑字、箭头轻微上浮 */
+.back-to-top:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000; /* 图标变黑 */
+    transform: translateY(0) scale(1.1); /* 稍微放大 */
+}
+
+.back-to-top:hover svg {
+    transform: translateY(-3px); /* 箭头有个向上的动效 */
+}
+
+/* 显示状态 (由 JS 控制) */
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* 手机端适配：位置稍微靠里一点，避免误触 */
+@media (max-width: 768px) {
+    .back-to-top {
+        bottom: 20px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+    }
 }
