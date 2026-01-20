@@ -128,8 +128,8 @@ h1, h2, h3, h4, .logo { font-family: var(--font-display); font-weight: 400; }
     position: relative;
     
     /* 关键：130px 确保它刚好在 Logo 下方，不重叠 */
-    margin-top: 130px; 
-    margin-bottom: 30px; 
+    margin-top: 0px; 
+    margin-bottom: 20px; 
     
     border-bottom: 1px solid var(--border);
     -ms-overflow-style: none;
@@ -173,14 +173,18 @@ h1, h2, h3, h4, .logo { font-family: var(--font-display); font-weight: 400; }
 /* 手机端高度适配 */
 @media (max-width: 768px) {
     .marquee-container {
-        margin-top: 90px; /* 手机端 Logo 较小，90px 即可 */
+        /* 手机端进一步上移 */
+        margin-top: 60px; 
         margin-bottom: 10px;
         height: 120px;
+    }
+    .gallery-hero {
+        padding-top: 0;
     }
 }
 /* --- 7. 画廊：标题区域修复 --- */
 .gallery-hero {
-    padding: 60px 0 40px;
+    padding: 10px 0 40px;
     text-align: center;
 }
 .gallery-hero h1 {
@@ -435,12 +439,12 @@ footer { padding: 100px 0 60px; border-top: 1px solid var(--border); text-align:
 /* --- 统一布局修复 --- */
 main {
     /* 140px 确保标题 "Victory" 或 "Friendly Rivalry" 刚好出现在 Logo 下方 */
-    padding-top: 140px; 
+    padding-top: 95px; 
 }
 
 /* 首页 Hero 区域不需要间距（因为它要全屏显示） */
 .hero {
-    margin-top: -140px; 
+    margin-top: -95px; 
 }
 
 /* 画廊页的标题区域，既然 main 给了 140px，这里缩小一点，防止太靠下 */
@@ -449,6 +453,6 @@ main {
 }
 
 @media (max-width: 768px) {
-    main { padding-top: 100px; }
-    .hero { margin-top: -100px; }
+    main { padding-top: 50px; }
+    .hero { margin-top: -50px; }
 }
