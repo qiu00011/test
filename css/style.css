@@ -216,18 +216,23 @@ h1, h2, h3, h4, .logo { font-family: var(--font-display); font-weight: 400; }
     overflow: hidden; /* 保证放大时图片不溢出边缘 */
 }
 
-.masonry-item img { 
-    width: 100%; 
-    display: block; 
-    border-radius: 12px; 
-    opacity: 0; 
-    /* 入场动画：透明度 + 向上位移 */
-    transform: translateY(30px) scale(1.05); 
-    transition: 
-        opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), 
-        transform 1.2s cubic-bezier(0.16, 1, 0.3, 1),
-        filter 0.5s ease; /* 增加滤镜过渡 */
-    filter: brightness(0.8); /* 初始稍微暗一点 */
+.masonry-item img {
+    width: 100%;
+    display: block;
+    border-radius: 8px;
+    
+    /* 1. 降低 Safari 渲染负担：初始不使用 translate 
+       2. 提高初始透明度，防止 JS 失效时全黑 */
+    opacity: 0.01; 
+    transition: opacity 0.8s ease-out;
+    
+    /* 针对 Safari 开启硬件加速 */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+.masonry-item img.loaded {
+    opacity: 1;
 }
 
 /* 当图片加载完成后的状态 */
