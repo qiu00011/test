@@ -147,33 +147,60 @@ async function initGallery() {
         }
 
         async function loadMasonryBatch() {
-            if (isMasonryLoading || !masonryHasMore) return;
-            isMasonryLoading = true;
-            document.getElementById('triggerText').innerText = "Loading...";
+    if (isMasonryLoading || !masonryHasMore) return;
+    isMasonryLoading = true;
+    
+    const triggerText = document.getElementById('triggerText');
+    if(triggerText) triggerText.innerText = "Loading...";
 
-            try {
-                const url = new URL(CONFIG.apiUrl);
-                url.searchParams.set('prefix', CONFIG.masonryPrefix + '/');
-                if (masonryCursor) url.searchParams.set('cursor', masonryCursor);
+    try {
+        const url = new URL(CONFIG.apiUrl);
+        url.searchParams.set('prefix', CONFIG.masonryPrefix + '/');
+        if (masonryCursor) url.searchParams.set('cursor', masonryCursor);
 
-                const res = await fetch(url);
-                const data = await res.json();
+        const res = await fetch(url);
+        const data = await res.json();
 
-                if (data.success) {
-                    const grid = document.getElementById('masonryGrid');
-                    data.images.forEach(src => {
-                        const div = document.createElement('div');
-                        div.className = 'masonry-item';
-                        div.innerHTML = `<img src="${src}" loading="lazy" onload="this.classList.add('loaded')">`;
-                        grid.appendChild(div);
-                    });
-                    masonryCursor = data.next_cursor;
-                    masonryHasMore = !!masonryCursor;
-                    document.getElementById('triggerText').innerText = masonryHasMore ? "Scroll for more" : "— End —";
+        if (data.success) {
+            const grid = document.getElementById('masonryGrid');
+            
+            data.images.forEach(src => {
+                const div = document.createElement('div');
+                div.className = 'masonry-item';
+                
+                // 重点：Safari 兼容性处理
+                const img = new Image();
+                img.src = src;
+                img.loading = "lazy"; // 依然保留延迟加载
+                
+                const showImg = () => img.classList.add('loaded');
+                
+                // 如果图片已经在缓存里，立刻显示
+                if (img.complete) {
+                    showImg();
+                } else {
+                    img.onload = showImg;
                 }
-            } catch (e) { console.error(e); }
-            finally { isMasonryLoading = false; }
+
+                div.appendChild(img);
+                grid.appendChild(div);
+            });
+
+            // ★★★ 针对 Safari 的核心修复：插入数据后强制容器“抖动”一下触发重绘 ★★★
+            grid.style.display = 'inline-block';
+            grid.offsetHeight; 
+            grid.style.display = 'block';
+
+            masonryCursor = data.next_cursor;
+            masonryHasMore = !!masonryCursor;
+            if(triggerText) triggerText.innerText = masonryHasMore ? "Scroll for more" : "— End —";
         }
+    } catch (e) { 
+        console.error("Gallery Error:", e); 
+    } finally { 
+        isMasonryLoading = false; 
+    }
+}
 
         initGallery();
     </script>
