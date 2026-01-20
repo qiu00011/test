@@ -216,36 +216,40 @@ h1, h2, h3, h4, .logo { font-family: var(--font-display); font-weight: 400; }
     overflow: hidden; /* 保证放大时图片不溢出边缘 */
 }
 
+/* --- 找回丝滑感：图片过渡优化 --- */
 .masonry-item img {
     width: 100%;
     display: block;
     border-radius: 8px;
+    opacity: 0;
     
-    /* 1. 降低 Safari 渲染负担：初始不使用 translate 
-       2. 提高初始透明度，防止 JS 失效时全黑 */
-    opacity: 0.01; 
-    transition: opacity 0.8s ease-out;
+    /* 初始状态：轻微向下位移，准备入场 */
+    transform: translateY(20px) scale(1);
     
-    /* 针对 Safari 开启硬件加速 */
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
+    /* ★★★ 核心修改：增加 transform 和 filter 的过渡 ★★★ */
+    /* duration 设为 1.2s（入场）和 0.8s（悬浮），使用高级感曲线 */
+    transition: 
+        opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.6s ease;
+    
+    will-change: transform, opacity;
+    filter: brightness(1); /* 初始亮度正常 */
 }
 
+/* 图片加载后的入场状态 */
 .masonry-item img.loaded {
     opacity: 1;
+    transform: translateY(0) scale(1);
 }
 
-/* 当图片加载完成后的状态 */
-.masonry-item img.loaded { 
-    opacity: 1; 
-    transform: translateY(0) scale(1); 
-}
-
-/* 悬浮效果：轻微放大、变亮、出现金色光晕 */
+/* ★★★ 悬浮时的“慢动作”放大效果 ★★★ */
 .masonry-item:hover img {
-    filter: brightness(1.1); /* 变亮 */
-    transform: scale(1.03); /* 轻微放大 */
-    cursor: zoom-in; /* 提示可以看大图 */
+    /* 缩放比例保持在 1.05 左右，不要太大，才显得高级 */
+    transform: scale(1.05); 
+    /* 稍微亮一点点即可 */
+    filter: brightness(1.1); 
+    cursor: zoom-in;
 }
 
 @media (max-width: 1024px) { .masonry-grid { column-gap: 15px; } .masonry-item { margin-bottom: 15px; } }
@@ -397,4 +401,24 @@ footer { padding: 100px 0 60px; border-top: 1px solid var(--border); text-align:
     .gallery-hero h1 { font-size: 2.8rem; }
     .masonry-grid { column-count: 1; }
     .back-to-top { bottom: 20px; right: 20px; width: 45px; height: 45px; }
+}
+/* --- 统一布局修复 --- */
+main {
+    /* 140px 确保标题 "Victory" 或 "Friendly Rivalry" 刚好出现在 Logo 下方 */
+    padding-top: 140px; 
+}
+
+/* 首页 Hero 区域不需要间距（因为它要全屏显示） */
+.hero {
+    margin-top: -140px; 
+}
+
+/* 画廊页的标题区域，既然 main 给了 140px，这里缩小一点，防止太靠下 */
+.gallery-hero {
+    padding: 20px 0 60px;
+}
+
+@media (max-width: 768px) {
+    main { padding-top: 100px; }
+    .hero { margin-top: -100px; }
 }
