@@ -217,26 +217,56 @@ h1, h2, h3, h4, .logo { font-family: var(--font-display); font-weight: 400; }
 }
 
 /* --- 找回丝滑感：图片过渡优化 --- */
+/* --- 兼顾 Safari 稳定性与极致丝滑感 --- */
 .masonry-item img {
     width: 100%;
     display: block;
     border-radius: 8px;
-    opacity: 0;
     
-    /* 初始状态：轻微向下位移，准备入场 */
-    transform: translateY(20px) scale(1);
+    /* 1. Safari 安全起点：使用极低透明度而非纯 0，防止渲染层被丢弃 */
+    opacity: 0.01; 
     
-    /* ★★★ 核心修改：增加 transform 和 filter 的过渡 ★★★ */
-    /* duration 设为 1.2s（入场）和 0.8s（悬浮），使用高级感曲线 */
+    /* 2. 初始位置：轻微下沉，配合硬件加速 Z 轴 */
+    transform: translateY(20px) translateZ(0);
+    -webkit-transform: translateY(20px) translateZ(0);
+    
+    /* 3. 核心：全属性丝滑过渡 */
+    /* 入场用 1.2s，悬浮缩放用 0.8s，使用高级感贝塞尔曲线 */
     transition: 
         opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
         transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
         filter 0.6s ease;
-    
-    will-change: transform, opacity;
-    filter: brightness(1); /* 初始亮度正常 */
+
+    /* 提前告知浏览器开启 GPU，防止滚动时掉帧 */
+    will-change: opacity, transform;
+    filter: brightness(1);
 }
 
+/* --- 图片加载后的入场状态 --- */
+.masonry-item img.loaded {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+    -webkit-transform: translateY(0) translateZ(0);
+}
+
+/* --- 悬浮时的“慢动作”放大 --- */
+.masonry-item:hover img {
+    /* 放大比例 1.04，配合 translateZ 确保 Safari 缩放时不模糊 */
+    transform: scale(1.04) translateZ(0);
+    -webkit-transform: scale(1.04) translateZ(0);
+    
+    /* 稍微提亮一点点，增加呼吸感 */
+    filter: brightness(1.1);
+    cursor: zoom-in;
+}
+
+/* 针对手机端的优化：缩放比例调小一点，防止触摸时显得太突兀 */
+@media (max-width: 768px) {
+    .masonry-item:hover img {
+        transform: scale(1.02) translateZ(0);
+        -webkit-transform: scale(1.02) translateZ(0);
+    }
+}
 /* 图片加载后的入场状态 */
 .masonry-item img.loaded {
     opacity: 1;
