@@ -64,6 +64,47 @@ document.addEventListener("DOMContentLoaded", () => {
             if (mobileMenu) mobileMenu.classList.remove('active');
         });
     });
+    
+    // 3. 通用跑马灯加载函数 (兼容 Safari)
+    // ------------------------------------------------
+    async function setupMarquee(trackId, prefix, speed = 20) {
+        const track = document.getElementById(trackId);
+        if (!track) return;
+
+        try {
+            const apiUrl = `https://api1.hyeri.us.kg?prefix=${prefix}`;
+            const res = await fetch(apiUrl);
+            const data = await res.json();
+            
+            if (data.success && data.images.length > 0) {
+                const imgHtml = data.images.map(src => `
+                    <div class="marquee-item"><img src="${src}" alt=""></div>
+                `).join('');
+                
+                // 复制3组确保无缝循环
+                track.innerHTML = imgHtml + imgHtml + imgHtml;
+
+                // 等待图片加载后启动动画，防止 Safari 跳动
+                let loadedCount = 0;
+                const allImgs = track.querySelectorAll('img');
+                const startAnimation = () => {
+                    loadedCount++;
+                    if (loadedCount >= allImgs.length) {
+                        track.style.animation = `marquee-scroll ${speed}s linear infinite`;
+                    }
+                };
+
+                allImgs.forEach(img => {
+                    if (img.complete) startAnimation();
+                    else img.onload = startAnimation;
+                });
+            }
+        } catch (e) { console.error("Marquee Error:", e); }
+    }
+
+    // 执行首页底部跑马灯加载
+    // 参数：元素ID, 路径前缀, 滚动秒数(越小越快)
+    setupMarquee('indexMarqueeTrack', 'marquee/', 10); 
     // ------------------------------------------------
     // 4. 首页作品列表悬浮图片特效 (Work Hover Reveal)
     // ------------------------------------------------
